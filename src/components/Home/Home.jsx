@@ -10,13 +10,14 @@ import { useRecoilState } from "recoil";
 import { noteState } from "../../Atom/noteAtom";
 import Note from "../Note/Note";
 import { Link, useNavigate } from "react-router-dom/dist";
+import { CirclesWithBar } from "react-loader-spinner";
 
 export default function Home() {
   const [show, setShow] = useState(false);
   let [noteLength, setNoteLength] = useRecoilState(noteState);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [allnotes, setAllnotes] = useState([]);
 
   let validationSchema = yup.object({
@@ -28,12 +29,11 @@ export default function Home() {
     content: yup
       .string()
       .required("content is requierd")
-      .min(40, "minimum 40 chars")
+      .min(5, "minimum 5 chars")
       .max(150, "maximum 150 chars"),
   });
 
   function addNote(values) {
-    setLoading(true);
     axios
       .post("https://note-sigma-black.vercel.app/api/v1/notes", values, {
         headers: {
@@ -47,8 +47,10 @@ export default function Home() {
       })
       .catch((err) => {
         console.log(err);
+        setLoading(false);
       })
       .finally(() => handleClose());
+      setLoading(false);
   }
 
   function getUserNotes(values) {
@@ -60,11 +62,14 @@ export default function Home() {
       })
       .then((res) => {
         console.log(res.data);
-        setNoteLength(res?.data.notes.length);
-        setAllnotes(res?.data.notes);
+        const sortedNotes = res?.data.notes.reverse(); // Reverse the array to display newest first
+        setNoteLength(sortedNotes.length);
+        setAllnotes(sortedNotes);
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
+        setLoading(false);
       });
   }
 
@@ -85,6 +90,25 @@ export default function Home() {
   function logout() {
     localStorage.removeItem("token");
     navigate("/login");
+  }
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <CirclesWithBar
+          height="100"
+          width="100"
+          color="#54B4D3"
+          outerCircleColor="#54B4D3"
+          innerCircleColor="#54B4D3"
+          barColor="#54B4D3"
+          ariaLabel="circles-with-bar-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+        />
+      </div>
+    );
   }
 
   return (
@@ -153,7 +177,6 @@ export default function Home() {
 
           <div className="col-10 px-lg-5 px-2 py-5">
             <div className="d-flex justify-content-between aling-items-center header">
-
               <div className="text-end">
                 <div className="p-3 rounded-4 bg-info text-white">
                   Number of notes: {noteLength}
@@ -161,7 +184,6 @@ export default function Home() {
               </div>
 
               <div className="d-flex justify-content-between align-items-center">
-
                 <div className="text-start me-2 d-flex  aling-items-center">
                   <button
                     className="btn btn-success text-white rounded-4"
@@ -183,22 +205,22 @@ export default function Home() {
                   </button>
                   {/* </Link> */}
                 </div>
-
               </div>
-
             </div>
 
-            <div className="row ">
-              {/* {allNotes.map(note =>  <Note key={note._id} note={note}  getUserNote={ getUserNote}/>)} */}
-              {allnotes?.map((note) => {
-                return (
-                  <Note
-                    key={note._id}
-                    note={note}
-                    getUserNotes={getUserNotes}
-                  />
-                );
-              })}
+            <div className="container">
+              <div className="row ">
+                {/* {allNotes.map(note =>  <Note key={note._id} note={note}  getUserNote={ getUserNote}/>)} */}
+                {allnotes?.map((note) => {
+                  return (
+                    <Note
+                      key={note._id}
+                      note={note}
+                      getUserNotes={getUserNotes}
+                    />
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>

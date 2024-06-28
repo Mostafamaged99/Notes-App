@@ -23,6 +23,7 @@ export default function Login() {
       })
       .catch((err) => {
         setErorrMsg(err?.response.data.msg);
+        setLoading(false);
       });
   }
 

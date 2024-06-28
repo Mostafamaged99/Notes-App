@@ -22,6 +22,7 @@ export default function Register() {
       })
       .catch((err) => {
         setErorrMsg(err?.response.data.msg);
+        setLoading(false);
       });
   }
 

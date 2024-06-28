@@ -14,10 +14,14 @@ import { RecoilRoot } from "recoil";
 import ReverseProtectedRoutes from "./ReverseProtectedRoutes/ReverseProtectedRoutes";
 import ProtectedRoutes from "./ProtectedRoutes/ProtectedRoutes";
 
-const routes = createBrowserRouter([
+const routes = createHashRouter([
   {
     index: "true",
-    element: <Register />,
+    element: (
+      <ReverseProtectedRoutes>
+        <Register />
+      </ReverseProtectedRoutes>
+    ),
   },
   {
     path: "register",

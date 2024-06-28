@@ -9,12 +9,13 @@ import * as yup from "yup";
 import { useState } from "react";
 import { Link } from "react-router-dom/dist";
 import { Fade } from "react-awesome-reveal";
+import { CirclesWithBar } from "react-loader-spinner";
 
 export default function Note({ note, getUserNotes }) {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   let validationSchema = yup.object({
     title: yup
@@ -25,12 +26,11 @@ export default function Note({ note, getUserNotes }) {
     content: yup
       .string()
       .required("content is requierd")
-      .min(40, "minimum 40 chars")
+      .min(5, "minimum 5 chars")
       .max(150, "maximum 150 chars"),
   });
 
   function updateNote(values) {
-    setLoading(true);
     axios
       .put(
         `https://note-sigma-black.vercel.app/api/v1/notes/${note._id}`,
@@ -44,16 +44,17 @@ export default function Note({ note, getUserNotes }) {
       .then((res) => {
         console.log(res.data);
         getUserNotes();
-        setLoading(false);
+        //setLoading(false);
       })
       .catch((err) => {
         console.log(err);
+        //setLoading(false);
       })
       .finally(() => handleClose());
+      //setLoading(false);
   }
 
   function deleteNote(values) {
-    setLoading(true);
     axios
       .delete(`https://note-sigma-black.vercel.app/api/v1/notes/${note._id}`, {
         headers: {
@@ -63,12 +64,14 @@ export default function Note({ note, getUserNotes }) {
       .then((res) => {
         console.log(res.data);
         getUserNotes();
+        //setLoading(false);
       })
       .catch((err) => {
         console.log(err);
-        setLoading(false);
+        //setLoading(false);
       })
       .finally(() => handleClose());
+      //setLoading(false);
   }
 
   const myFormik = useFormik({
@@ -79,6 +82,25 @@ export default function Note({ note, getUserNotes }) {
     onSubmit: updateNote,
     validationSchema,
   });
+
+  // if (loading) {
+  //   return (
+  //     <div className="d-flex justify-content-center align-items-center vh-100">
+  //       <CirclesWithBar
+  //         height="100"
+  //         width="100"
+  //         color="#54B4D3"
+  //         outerCircleColor="#54B4D3"
+  //         innerCircleColor="#54B4D3"
+  //         barColor="#54B4D3"
+  //         ariaLabel="circles-with-bar-loading"
+  //         wrapperStyle={{}}
+  //         wrapperClass=""
+  //         visible={true}
+  //       />
+  //     </div>
+  //   );
+  // }  
 
   return (
     <>
